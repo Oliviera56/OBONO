@@ -1,0 +1,161 @@
+:root {
+  --ocea: #2c7b7e;
+  --ocea-light: #d7f0ef;
+  --sand: #f6f3ed;
+  --text: #141414;
+  --glass-bg: rgba(255, 255, 255, 0.55);
+  --glass: blur(14px) saturate(160%);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Inter', sans-serif;
+  background: var(--sand);
+  color: var(--text);
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*=========== ÉCRAN D'ACCUEIL ===========*/
+#intro {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  background: linear-gradient(135deg, var(--ocea) 0%, #1b5052 100%);
+  z-index: 100;
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+#intro.fade-out {
+  opacity: 0;
+  transform: translateY(-2rem);
+  pointer-events: none;
+}
+.intro-content {
+  text-align: center;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1rem;
+}
+.intro-content h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 2rem;
+}
+.btn {
+  padding: 0.9rem 2.2rem;
+  border-radius: 3rem;
+  font-weight: 500;
+  background: #fff;
+  color: var(--ocea);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: none;
+  cursor: pointer;
+  transition: background 0.25s, color 0.25s;
+}
+.btn:hover {
+  background: var(--ocea-light);
+  color: var(--text);
+}
+
+/*=========== BARRE FIXE ===========*/
+.app-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+  padding: 0.8rem 1rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+}
+#today {
+  font-size: 0.9rem;
+  margin-left: auto;
+  align-self: flex-end;
+}
+
+/*=========== BARRE DE PROGRESSION ===========*/
+.progress {
+  width: 100%;
+  height: 0.5rem;
+  background: var(--ocea-light);
+  border-radius: 0.3rem;
+  overflow: hidden;
+  margin-top: 0.3rem;
+}
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: var(--ocea);
+  transition: width 0.3s ease;
+}
+#progressLabel {
+  font-size: 0.8rem;
+  text-align: right;
+  margin-top: 0.1rem;
+  width: 100%;
+  display: block;
+}
+
+/*=========== LISTES ===========*/
+#lists {
+  padding: 7.5rem 1rem 2rem;
+}
+section.slot {
+  margin-bottom: 1.5rem;
+}
+.slot h2 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  margin-bottom: 0.6rem;
+}
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.task {
+  display: flex;
+  align-items: center;
+  padding: 0.9rem 1.2rem;
+  border-radius: 1rem;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+  user-select: none;
+}
+.task:active {
+  background: var(--ocea-light);
+}
+.task.completed {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/*=========== CLASSE HIDDEN ===========*/
+.hidden {
+  display: none !important;
+}

@@ -5,12 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Obono • Night-Audit Assistant</title>
 
+  <!-- Polices et icônes -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;700&display=swap" rel="stylesheet" />
   <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Styles -->
   <link rel="stylesheet" href="obono.css" />
 </head>
 <body>
-  <!-- INTRO -->
+  <!-- Écran d’accueil ------------------------------------------------------->
   <div id="intro">
     <div class="intro-content">
       <h2>Bienvenue sur Obono</h2>
@@ -18,30 +21,48 @@
     </div>
   </div>
 
-  <!-- BARRE FIXE -->
+  <!-- Barre fixe (cachée au chargement) ------------------------------------>
   <header class="app-bar glass hidden">
     <div class="bar-row">
       <h1>Obono</h1>
       <span id="today"></span>
-      <button id="resetBtn" class="reset-btn" title="Réinitialiser"><i data-lucide="rotate-ccw"></i></button>
+
+      <!-- Bouton reset -->
+      <button id="resetBtn" class="reset-btn" title="Réinitialiser">
+        <i data-lucide="rotate-ccw"></i>
+      </button>
     </div>
-    <div id="progressContainer" class="progress"><div id="progressBar"></div></div>
+
+    <!-- Barre de progression -->
+    <div id="progressContainer" class="progress">
+      <div id="progressBar"></div>
+    </div>
     <span id="progressLabel">0&nbsp;%</span>
   </header>
 
-  <!-- LISTES -->
+  <!-- Listes de tâches ------------------------------------------------------>
   <main id="lists"></main>
 
-  <!-- MODAL NOTE -->
+  <!-- Modal notes ----------------------------------------------------------->
   <div id="noteModal" class="note-modal hidden">
     <div class="note-card">
       <h3 id="noteTask"></h3>
-      <div class="note-fixed"><span class="subtitle">Note :</span><p id="defaultNote"></p></div>
-      <div class="note-user"><span class="subtitle">Ta note :</span><textarea id="userNote" rows="4" placeholder="Écris ta note ici…"></textarea></div>
+
+      <div class="note-fixed">
+        <span class="subtitle">Note :</span>
+        <p id="defaultNote"></p>
+      </div>
+
+      <div class="note-user">
+        <span class="subtitle">Ta note :</span>
+        <textarea id="userNote" rows="4" placeholder="Écris ta note ici…"></textarea>
+      </div>
+
       <button id="closeModal" class="btn-small btn-shrink">Fermer</button>
     </div>
   </div>
 
+  <!-- Scripts --------------------------------------------------------------->
   <script src="obono.js"></script>
   <script>lucide.createIcons();</script>
 </body>

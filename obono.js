@@ -100,7 +100,7 @@ function renderTasks(){
 
 /* ===== CLICK / DOUBLE-CLICK (150 ms même élément) ==================== */
 let lastEl=null, lastTime=0;
-const DBL=150;
+const DBL=200;
 
 function handleClick(e){
   const el=e.currentTarget;

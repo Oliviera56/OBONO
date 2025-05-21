@@ -1,187 +1,137 @@
-/* ================================================================
-   O B O N O · Night-Audit Assistant – feuille de style complète
-   ============================================================== */
+/* =======================================================
+   O B O N O · feuille de style (version “Résumé”)
+======================================================= */
 
-/* ---------- Variables globales --------------------------------- */
+/* ───────── Variables ───────── */
 :root{
-  --ocea:#4fd1c5;                     /* turquoise signature        */
-  --bg:#13171e;                       /* fond général               */
-  --text:#e9eef3;                     /* texte clair                */
-
-  --glass-bg:rgba(255,255,255,.06);   /* glass morphism             */
-  --glass-bg-h:rgba(255,255,255,.10);
-  --glass-brd:rgba(255,255,255,.18);
-
-  --task-hover:rgba(255,255,255,.03);
+  --ocea:#4fd1c5;
+  --bg:#13171e;
+  --text:#e9eef3;
+  --glass:rgba(255,255,255,.06);
+  --glass-h:rgba(255,255,255,.11);
+  --brd:rgba(255,255,255,.18);
   --transition:.22s ease;
 }
 
-/* ---------- Reset minimal --------------------------------------- */
+/* ───────── Reset / base ───────── */
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
-  color:var(--text);background:var(--bg);
-  -webkit-font-smoothing:antialiased;line-height:1.4;
+  background:var(--bg);color:var(--text);line-height:1.4;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ================================================================
-   1) Écran d’introduction
-================================================================ */
-#intro{
-  position:fixed;inset:0;
-  display:flex;justify-content:center;align-items:center;
-  background:var(--bg);z-index:30;
-  transition:opacity .6s;
-}
+/* =======================================================
+   1) Intro
+======================================================= */
+#intro{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;background:var(--bg);z-index:30;transition:opacity .6s}
 #intro.fade-out{opacity:0;pointer-events:none}
 .intro-box{text-align:center}
-.intro-box h1{font-size:2.8rem;letter-spacing:.08em;margin-bottom:.4rem}
-.intro-box p{opacity:.7;margin-bottom:2rem}
-#enterBtn{
-  font:inherit;font-size:1rem;padding:.6rem 1.2rem;
-  border:none;border-radius:6px;cursor:pointer;
-  background:var(--ocea);color:#033;transition:opacity .2s;
-}
+.intro-box h1{font-size:2.7rem;letter-spacing:.07em;margin-bottom:.3rem}
+.intro-box p{opacity:.7;margin-bottom:1.8rem}
+#enterBtn{font:inherit;font-size:1rem;padding:.6rem 1.3rem;border:none;border-radius:6px;background:var(--ocea);color:#033;cursor:pointer;transition:opacity .2s}
 #enterBtn:hover{opacity:.85}
 
-/* ================================================================
+/* =======================================================
    2) Barre d’application
-================================================================ */
+======================================================= */
 .app-bar{
-  position:sticky;top:0;z-index:20;
-  display:flex;justify-content:space-between;align-items:center;
-  padding:.4rem 1rem;background:var(--glass-bg);backdrop-filter:blur(8px);
-  border-bottom:1px solid var(--glass-brd);
-  transform:translateY(-100%);opacity:0;transition:transform .5s,opacity .5s;
+  position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;padding:.4rem 1rem;
+  background:var(--glass);backdrop-filter:blur(8px);border-bottom:1px solid var(--brd);
+  transform:translateY(-100%);opacity:0;transition:.5s;
 }
 .app-bar.show{transform:none;opacity:1}
 .app-bar h2{font-size:1rem;font-weight:500}
-.app-actions{display:flex;gap:.4rem}
-
-/* Icônes barre app */
 .icon-btn{
-  font-size:1.3rem;line-height:1;
-  display:inline-flex;align-items:center;justify-content:center;
-  padding:.35rem .6rem;border:none;border-radius:6px;cursor:pointer;
-  background:none;color:var(--ocea);
-  transition:filter var(--transition);
+  font-size:1.25rem;background:none;border:none;color:var(--ocea);padding:.35rem .6rem;border-radius:6px;cursor:pointer;transition:filter var(--transition);
 }
 .icon-btn:hover{filter:brightness(1.25)}
-#resetBtn.reset-spin{animation:spin .6s linear}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+#resetBtn.reset-spin{animation:spin .6s linear}@keyframes spin{to{transform:rotate(360deg)}}
 
-/* ================================================================
-   3) Barre de progression
-================================================================ */
-#progressWrap{
-  position:fixed;bottom:0;left:0;width:100%;z-index:15;
-  background:rgba(0,0,0,.3);backdrop-filter:blur(4px);
-}
-#progressBar{
-  height:.35rem;width:0;background:var(--ocea);
-  transition:width .35s ease;
-}
-#progressBar.pulse{animation:pulse 1s ease}
-@keyframes pulse{0%{opacity:1}50%{opacity:.4}100%{opacity:1}}
-#progressLabel{
-  position:absolute;right:.6rem;bottom:.4rem;
-  font-size:.75rem;opacity:.7;
-}
+/* =======================================================
+   3) Progression
+======================================================= */
+#progressWrap{position:fixed;bottom:0;left:0;width:100%;background:rgba(0,0,0,.3);backdrop-filter:blur(4px)}
+#progressBar{height:.35rem;width:0;background:var(--ocea);transition:width .35s}
+#progressLabel{position:absolute;right:.6rem;bottom:.35rem;font-size:.75rem;opacity:.7}
+.pulse{animation:pulse 1s ease}@keyframes pulse{50%{opacity:.4}}
 
-/* ================================================================
-   4) Sections & listes
-================================================================ */
-main{padding:4.2rem 1rem 3.2rem}
+/* =======================================================
+   4) Listes & Sections
+======================================================= */
+main{padding:4.2rem 1rem 4rem}
 .slot{margin-bottom:2rem;opacity:0;transform:translateY(40px);transition:.55s}
 .slot.active{opacity:1;transform:none}
-.slot h2{
-  font-size:1.2rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;
-  text-transform:uppercase;letter-spacing:.05em;color:var(--ocea);
-}
+.slot h2{font-size:1.15rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;color:var(--ocea);text-transform:uppercase;letter-spacing:.05em}
 .task-list{list-style:none;display:flex;flex-direction:column;gap:.4rem}
 
-/* ================================================================
-   5) Tâches
-================================================================ */
+/* ───── Tâches ───── */
 .task{
-  position:relative;display:flex;align-items:center;gap:.6rem;
-  padding:.5rem .8rem;padding-right:3.2rem;
-  border-radius:6px;transition:background var(--transition);
+  position:relative;display:flex;align-items:center;gap:.6rem;padding:.45rem .8rem;padding-right:2.8rem;border-radius:6px;
+  background:transparent;transition:background var(--transition);
+  cursor:default;                 /* ← curseur inchangé */
 }
-.task:hover{background:var(--task-hover)}
+.task:hover{background:var(--glass)}
 .task.completed .label{opacity:.55;text-decoration:line-through}
 
-/* effet “tick” lorsqu’on coche */
-.tick{animation:tick .25s ease}
-@keyframes tick{0%{transform:scale(1)}50%{transform:scale(.97)}100%{transform:scale(1)}}
+/* petit “tick” visuel */
+.tick{animation:tick .25s}@keyframes tick{50%{transform:scale(.97)}}
 
-/* label */
-.label{flex:1 1 auto}
-
-/* bouton note 🗒️ */
+/* bouton note (Lucide “file-text”) */
 .note-btn{
-  position:absolute;top:50%;right:.8rem;transform:translateY(-50%);
-  width:2.2rem;height:2.2rem;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--glass-bg);backdrop-filter:blur(6px);
-  border:1px solid var(--glass-brd);color:var(--ocea);font-size:1.3rem;line-height:1;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:background var(--transition),transform .15s;
+  position:absolute;top:50%;right:.65rem;transform:translateY(-50%);
+  width:1.8rem;height:1.8rem;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  background:var(--glass);border:1px solid var(--brd);backdrop-filter:blur(5px);cursor:pointer;
+  -webkit-tap-highlight-color:transparent;transition:background var(--transition),transform .15s;
 }
-.note-btn:hover{background:var(--glass-bg-h)}
-.note-btn:active{transform:translateY(-50%) scale(.9)}
+.note-btn i{width:1rem;height:1rem;stroke:var(--ocea)}
+.note-btn:hover{background:var(--glass-h)}
+.note-btn:active{transform:translateY(-50%) scale(.88)}
 
-/* reveal pour chaque tâche */
-.task{opacity:0;transform:translateY(20px);transition:.45s}
-.task.active{opacity:1;transform:none}
-/* petit décalage entre les tâches */
-@for (var i=0;i<6;i++){}
-
-/* ================================================================
-   6) Modaux (notes & rapport)
-================================================================ */
-.modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.55);
-  display:flex;justify-content:center;align-items:center;
-  padding:1rem;z-index:40;transition:opacity .3s;
+/* =======================================================
+   5) Bouton Résumé
+======================================================= */
+.summary-wrap{display:flex;justify-content:center;padding:1.2rem 1rem 3.2rem}
+.wide-btn{
+  width:100%;max-width:640px;font:inherit;font-size:1rem;padding:.7rem;border:none;border-radius:8px;cursor:pointer;
+  background:var(--ocea);color:#033;transition:opacity .2s;
 }
+.wide-btn:hover{opacity:.85}
+
+/* =======================================================
+   6) Modaux
+======================================================= */
+.modal{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,.55);padding:1rem;z-index:40;transition:opacity .3s}
 .modal.hidden{opacity:0;pointer-events:none}
-
-/* contenu */
 .modal-box{
-  width:100%;max-width:500px;background:var(--bg);
-  border:1px solid var(--glass-brd);border-radius:8px;
-  padding:1.2rem;display:flex;flex-direction:column;gap:.8rem;
-  box-shadow:0 6px 18px rgba(0,0,0,.4);
+  width:100%;max-width:500px;background:var(--bg);border:1px solid var(--brd);border-radius:8px;padding:1.2rem;display:flex;flex-direction:column;gap:.8rem;box-shadow:0 6px 18px rgba(0,0,0,.4)
 }
 .modal-box h3{font-size:1.2rem;color:var(--ocea)}
 .modal-box textarea{
-  width:100%;height:30vh;resize:none;padding:.6rem;border-radius:6px;
-  background:rgba(255,255,255,.05);border:1px solid var(--glass-brd);
-  color:var(--text);font-family:inherit;font-size:.95rem;
+  width:100%;height:28vh;resize:none;padding:.6rem;border-radius:6px;background:rgba(255,255,255,.05);border:1px solid var(--brd);color:var(--text);font-family:inherit;font-size:.95rem
 }
-.modal-box label{font-size:.9rem;display:flex;flex-direction:column;gap:.2rem}
 .modal-actions{display:flex;justify-content:flex-end;gap:.6rem}
-
-.modal-actions button,
-#closeModal,
-#copyReport,
-#closeReport{
-  font:inherit;font-size:.9rem;padding:.45rem .9rem;border-radius:6px;
-  border:none;cursor:pointer;color:#033;background:var(--ocea);
-  transition:opacity .2s;
+.modal-actions button{
+  font:inherit;font-size:.9rem;padding:.45rem .9rem;border:none;border-radius:6px;cursor:pointer;background:var(--ocea);color:#033;transition:opacity .2s
 }
 .modal-actions button:hover{opacity:.85}
 
-/* ================================================================
-   7) Utilitaires
-================================================================ */
-.hidden{display:none}
-.reveal{opacity:0;transform:translateY(35px);transition:.6s}
-.reveal.active{opacity:1;transform:none}
+/* ───── Sélecteur moderne ───── */
+.nice-select{position:relative;display:block}
+.nice-select select{
+  width:100%;padding:.5rem .9rem;border-radius:6px;appearance:none;background:rgba(255,255,255,.05);border:1px solid var(--brd);color:var(--text);font-size:.9rem
+}
+.nice-select i{
+  position:absolute;right:.8rem;top:50%;transform:translateY(-50%);pointer-events:none;width:.9rem;height:.9rem;stroke:var(--ocea)
+}
+.nice-select select:focus{outline:2px solid var(--ocea)}
 
-@media (min-width:600px){
-  main{max-width:650px;margin-inline:auto}
+/* =======================================================
+   7) Divers
+======================================================= */
+.reveal{opacity:0;transform:translateY(35px);transition:.6s}.reveal.active{opacity:1;transform:none}
+@media(min-width:600px){
+  main{max-width:640px;margin:auto}
   .modal-box textarea#reportOut{height:55vh}
 }

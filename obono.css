@@ -1,17 +1,15 @@
 /*══════════════════════════════════════════════════════════════════════
-  O B O N O · Night-Shift  —  feuille de style v6
+  O B O N O · Night-Shift — feuille de style v7
 ══════════════════════════════════════════════════════════════════════*/
 
-/*── 1. VARIABLES (thème sombre glass) ───────────────────────────────*/
+/*── 1. VARIABLES ────────────────────────────────────────────────────*/
 :root{
-  --ocea:#4fd1c5;                 /* turquoise signature                */
-  --bg:#13171e;                   /* fond général                       */
-  --text:#e9eef3;                 /* texte principal                    */
-
-  --glass:rgba(255,255,255,.07);  /* panneaux translucides              */
-  --glass-h:rgba(255,255,255,.13);/* hover                              */
-  --brd:rgba(255,255,255,.18);    /* bordures discrètes                 */
-
+  --ocea:#4fd1c5;
+  --bg:#13171e;
+  --text:#e9eef3;
+  --glass:rgba(255,255,255,.07);
+  --glass-h:rgba(255,255,255,.13);
+  --brd:rgba(255,255,255,.18);
   --transition:.22s ease;
 }
 
@@ -53,7 +51,6 @@ body{
 .app-bar.show{transform:none;opacity:1}
 .app-bar h2{font-size:1rem;font-weight:500}
 
-/* bouton icône réutilisable */
 .icon-btn{
   font-size:1.2rem;background:none;border:none;color:var(--ocea);
   padding:.35rem .6rem;border-radius:6px;cursor:pointer;
@@ -87,6 +84,7 @@ main{padding:4.2rem 1rem 4rem}
 .slot h2{
   font-size:1.15rem;margin-bottom:.6rem;display:flex;align-items:center;gap:.4rem;
   color:var(--ocea);text-transform:uppercase;letter-spacing:.05em;
+  pointer-events:none;user-select:none;cursor:default;
 }
 .task-list{list-style:none;display:flex;flex-direction:column;gap:.4rem}
 
@@ -105,18 +103,17 @@ main{padding:4.2rem 1rem 4rem}
 .tick{animation:tick .25s}@keyframes tick{50%{transform:scale(.97)}}
 .label{flex:1 1 auto}
 
-/*── Icône note modernisée ─────────────────────────────────────────*/
 .note-btn{
   position:absolute;top:50%;right:.55rem;transform:translateY(-50%);
   width:1.7rem;height:1.7rem;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
-  background:rgba(79,209,197,.12);
-  border:1px solid rgba(79,209,197,.25);backdrop-filter:blur(5px);
+  background:rgba(79,209,197,.16);
+  border:1px solid rgba(79,209,197,.3);backdrop-filter:blur(5px);
   cursor:pointer;transition:background var(--transition),transform .15s;
   -webkit-tap-highlight-color:transparent;
 }
-.note-btn i{width:1rem;height:1rem;stroke:var(--ocea)}
-.note-btn:hover{background:rgba(79,209,197,.18)}
+.note-btn i{width:1rem;height:1rem;stroke:var(--ocea);opacity:.9}
+.note-btn:hover{background:rgba(79,209,197,.22)}
 .note-btn:active{transform:translateY(-50%) scale(.88)}
 
 /*════════════════════════════════════════════════════════════════════
@@ -131,7 +128,7 @@ main{padding:4.2rem 1rem 4rem}
 .wide-btn:hover{opacity:.85}
 
 /*════════════════════════════════════════════════════════════════════
-  9. MODAUX (note & résumé)
+  9. MODAUX
 ════════════════════════════════════════════════════════════════════*/
 .modal{
   position:fixed;inset:0;display:flex;justify-content:center;align-items:center;
@@ -161,12 +158,10 @@ main{padding:4.2rem 1rem 4rem}
 .modal-actions button:hover{opacity:.85}
 
 /*════════════════════════════════════════════════════════════════════
-  10. SÉLECTEUR CATÉGORIE CUSTOM
+ 10. SÉLECTEUR CATÉGORIE
 ════════════════════════════════════════════════════════════════════*/
 .cat-wrapper{display:flex;flex-direction:column;gap:.4rem;position:relative}
 .cat-label{font-size:.9rem}
-
-/* Zone affichée */
 .cat-display{
   width:100%;padding:.55rem .9rem;border-radius:6px;
   display:flex;justify-content:space-between;align-items:center;gap:.8rem;
@@ -175,24 +170,22 @@ main{padding:4.2rem 1rem 4rem}
 }
 .cat-display:hover{background:var(--glass-h)}
 .cat-display i{width:.95rem;height:.95rem;stroke:var(--ocea);flex:none}
-
-/* Menu déroulant */
 .cat-options{
   position:absolute;top:100%;left:0;width:100%;margin-top:.25rem;
   padding:.3rem 0;list-style:none;border-radius:8px;z-index:10;
-  background:var(--glass);border:1px solid var(--brd);backdrop-filter:blur(10px);
-  max-height:220px;overflow:auto;
+  background:rgba(0,0,0,.4);border:1px solid var(--brd);backdrop-filter:blur(10px);
+  max-height:220px;overflow-y:auto;
 }
 .cat-options.hidden{display:none}
 .cat-options li{
   padding:.45rem .9rem;font-size:.9rem;cursor:pointer;
   transition:background var(--transition);
 }
-.cat-options li:hover{background:var(--glass-h)}
+.cat-options li:hover{background:rgba(255,255,255,.07)}
 .cat-options .sel{color:var(--ocea)}
 
 /*════════════════════════════════════════════════════════════════════
-  11. UTILITAIRES
+ 11. UTILITAIRES
 ════════════════════════════════════════════════════════════════════*/
 .reveal{opacity:0;transform:translateY(35px);transition:.6s}
 .reveal.active{opacity:1;transform:none}

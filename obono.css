@@ -72,3 +72,15 @@ section.slot{margin-bottom:1.5rem}
 .hidden{display:none !important}
 
 @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+
+/* BOUTON NOTE ---------------------------------------------------------- */
+.note-btn{
+  margin-left:auto;           /* le pousse complètement à droite */
+  display:flex;align-items:center;justify-content:center;
+  background:none;border:none;padding:0.2rem;
+  cursor:pointer;-webkit-tap-highlight-color:transparent;
+  transition:transform .2s,filter .2s;
+}
+.note-btn i{width:1.1rem;height:1.1rem;stroke:var(--ocea);}
+.note-btn:hover{filter:brightness(1.15);}
+.note-btn:active{transform:scale(.9);}

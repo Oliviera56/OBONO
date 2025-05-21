@@ -73,14 +73,55 @@ section.slot{margin-bottom:1.5rem}
 
 @keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
 
-/* BOUTON NOTE ---------------------------------------------------------- */
-.note-btn{
-  margin-left:auto;           /* le pousse complètement à droite */
-  display:flex;align-items:center;justify-content:center;
-  background:none;border:none;padding:0.2rem;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:transform .2s,filter .2s;
+/* ──────────────────────────────────────────────────────────────────
+   LISTE DES TÂCHES : alignement + survol
+─────────────────────────────────────────────────────────────────── */
+.task{
+  position:relative;              /* pour placer le bouton en absolu */
+  padding-right:3.2rem;           /* espace réservé au bouton */
+  border-radius:6px;
+  transition:background .2s;
 }
-.note-btn i{width:1.1rem;height:1.1rem;stroke:var(--ocea);}
-.note-btn:hover{filter:brightness(1.15);}
-.note-btn:active{transform:scale(.9);}
+.task:hover{
+  background:rgba(255,255,255,.03);   /* halo discret */
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Libellé : prend toute la place restante
+─────────────────────────────────────────────────────────────────── */
+.task .label{
+  display:inline-block;
+  padding:.4rem .6rem;
+  flex:1 1 auto;                  /* s’allonge si besoin */
+}
+
+/* ──────────────────────────────────────────────────────────────────
+   Bouton Note : collé à l’extrême droite
+─────────────────────────────────────────────────────────────────── */
+.note-btn{
+  position:absolute;
+  top:50%; right:.8rem;           /* « collé » au bord */
+  transform:translateY(-50%);
+  
+  width:2.2rem; height:2.2rem;    /* plus généreux pour le tactile */
+  display:flex; align-items:center; justify-content:center;
+
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(6px);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:50%;
+  cursor:pointer;
+  padding:0;                      /* pas de padding parasite */
+  transition:transform .15s, background .2s;
+  -webkit-tap-highlight-color:transparent;
+}
+.note-btn i{
+  width:1.1rem; height:1.1rem;
+  stroke:var(--ocea);
+}
+.note-btn:hover{
+  background:rgba(255,255,255,.12);
+}
+.note-btn:active{
+  transform:translateY(-50%) scale(.9);
+}

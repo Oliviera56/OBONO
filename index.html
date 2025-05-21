@@ -5,18 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Obono · Night-Audit Assistant</title>
 
-  <!-- Styles -->
   <link rel="stylesheet" href="obono.css">
-
-  <!-- Icônes Lucide -->
   <script src="https://unpkg.com/lucide@latest"></script>
-
-  <!-- Script principal -->
   <script src="obono.js" defer></script>
 </head>
 <body>
 
-<!-- ─────────── Écran d’intro ─────────── -->
+<!-- ───── Intro ───── -->
 <section id="intro">
   <div class="intro-box">
     <h1>OBONO</h1>
@@ -25,36 +20,36 @@
   </div>
 </section>
 
-<!-- ─────────── Barre d’application ─────────── -->
+<!-- ───── Barre d’application ───── -->
 <header class="app-bar hidden">
   <h2 id="today"></h2>
-
-  <div class="app-actions">
-    <button id="resetBtn" class="icon-btn" title="Réinitialiser">⟳</button>
-    <button id="reportBtn" class="icon-btn" title="Générer le rapport">📝</button>
-  </div>
+  <button id="resetBtn" class="icon-btn" title="Réinitialiser">⟳</button>
 </header>
 
-<!-- ─────────── Progression globale ─────────── -->
+<!-- ───── Progression ───── -->
 <div id="progressWrap">
   <div id="progressBar"></div>
   <span id="progressLabel">0 %</span>
 </div>
 
-<!-- ─────────── Listes de tâches (remplies par JS) ─────────── -->
+<!-- ───── Listes (injectées) ───── -->
 <main id="lists"></main>
 
-<!-- ─────────── Modal : NOTE ─────────── -->
+<!-- ───── Bouton Résumé ───── -->
+<div class="summary-wrap">
+  <button id="summaryBtn" class="wide-btn">Résumé du shift</button>
+</div>
+
+<!-- ───── Modal NOTE ───── -->
 <div id="noteModal" class="modal hidden">
   <div class="modal-box">
     <h3 id="noteTask">Tâche</h3>
 
-    <p class="preset"><strong>Note par défaut :</strong> <span id="defaultNote">—</span></p>
-
     <textarea id="userNote" placeholder="Votre note…"></textarea>
 
-    <label for="noteCategory">Catégorie&nbsp;:
+    <label class="nice-select">Catégorie
       <select id="noteCategory"></select>
+      <i data-lucide="chevron-down"></i>
     </label>
 
     <div class="modal-actions">
@@ -63,7 +58,7 @@
   </div>
 </div>
 
-<!-- ─────────── Modal : RAPPORT ─────────── -->
+<!-- ───── Modal RÉSUMÉ ───── -->
 <div id="reportModal" class="modal hidden">
   <div class="modal-box">
     <h3>Rapport de shift</h3>

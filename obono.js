@@ -1,195 +1,198 @@
-/* =======================================================================
-   O B O N O · Night-Audit Assistant
-   Fichier : obono.js        (pas de double-clic • bouton-emoji 🗒️)
-   ===================================================================== */
+/* ====================================================================
+   O B O N O  –  Shift-helper  v2
+   Génère un rapport structuré (voir photo) à partir des notes saisies.
+   ==================================================================== */
 
-/* ===== SLOTS & TÂCHES ================================================= */
+/* ----- 1.  CONFIG --------------------------------------------------- */
 const SLOTS = [
-  { id: 'arrivee',     label: 'Arrivée' },
-  { id: 'soiree',      label: 'Soirée' },
-  { id: 'nuit',        label: 'Nuit' },
-  { id: 'matinee',     label: 'Matinée' },
-  { id: 'finmatinee',  label: 'Fin de matinée' }
+  {id:'arrivee',    label:'Arrivée'},
+  {id:'soiree',     label:'Soirée'},
+  {id:'nuit',       label:'Nuit'},
+  {id:'matinee',    label:'Matinée'},
+  {id:'finmatinee', label:'Fin de matinée'}
 ];
 
 const TASKS = [
-  ['arrivee', 'Passation des infos'],
-  ['arrivee', 'Caisse'],
-  ['arrivee', 'Piscine'],
-  ['arrivee', "Imprimer l'état d'occupation et d'hébergement"],
-  ['soiree', 'Fermeture du spa (21 h)'],
-  ['soiree', 'Serviettes piscine'],
-  ['soiree', 'Première ronde – vérifier les chambres non arrivées'],
-  ['soiree', 'Préparer les arrivées du lendemain (pochettes, cartes, bons boissons/soins)'],
-  ['soiree', 'Régler le volume de la musique'],
-  ['soiree', "Fermer la porte de l'hôtel une fois le personnel parti"],
-  ['soiree', 'Ronde de fermeture'],
-  ['nuit',   'Trier les tickets du restaurant et du bar'],
-  ['nuit',   'Préparer le mail du rapport Medialog'],
-  ['nuit',   'Ménage dès que plus aucun client n’est présent'],
-  ['nuit',   'Clôture de caisse à 2 h'],
-  ['nuit',   'Envoyer le mail Medialog'],
-  ['nuit',   'Temps calme'],
-  ['matinee',   "Ouvrir la porte d'entrée"],
-  ['matinee',   'Mise en place du petit-déjeuner'],
-  ['matinee',   'VAD Expedia / Staycation'],
-  ['matinee',   "Ronde d'ouverture"],
-  ['finmatinee', 'Caisse après clôture avec le matin'],
-  ['finmatinee', 'Sortir les poubelles'],
-  ['finmatinee', "Noter l'heure de fin"],
-  ['finmatinee', 'Finito pipo']
-].map(([slot, text]) => ({ slot, text }));
+ ['arrivee','Passation des infos'],
+ ['arrivee','Caisse'],
+ ['arrivee','Piscine'],
+ ['arrivee',"Imprimer l'état d'occupation et d'hébergement"],
+ ['soiree','Fermeture du spa (21 h)'],
+ ['soiree','Serviettes piscine'],
+ ['soiree','Première ronde – vérifier les chambres non arrivées'],
+ ['soiree','Préparer les arrivées du lendemain'],
+ ['soiree','Régler le volume de la musique'],
+ ['soiree',"Fermer la porte de l'hôtel une fois le personnel parti"],
+ ['soiree','Ronde de fermeture'],
+ ['nuit','Trier les tickets resto/bar'],
+ ['nuit','Préparer le mail Medialog'],
+ ['nuit','Ménage dès que plus aucun client'],
+ ['nuit','Clôture de caisse à 2 h'],
+ ['nuit','Envoyer le mail Medialog'],
+ ['nuit','Temps calme'],
+ ['matinee',"Ouvrir la porte d'entrée"],
+ ['matinee','Mise en place petit-déj'],
+ ['matinee','VAD Expedia / Staycation'],
+ ['matinee',"Ronde d'ouverture"],
+ ['finmatinee','Caisse après clôture matin'],
+ ['finmatinee','Sortir les poubelles'],
+ ['finmatinee',"Noter l'heure de fin"],
+ ['finmatinee','Finito pipo']
+].map(([slot,text])=>({slot,text}));
 
-const PRESET_NOTES = Array(TASKS.length).fill("");
+/*—  Catégories du rapport (photo)  —*/
+const REPORT_CATEGORIES = [
+  'Retour client',
+  'Délogement',
+  'No-show',
+  'Caisse',
+  'Etages',
+  'Technique',
+  'Proposition Tarifaire',
+  'Autre info importante'
+];
 
-/* ===== LOCAL-STORAGE ================================================== */
-const DONE_KEY  = 'obono.done';
-const NOTE_KEY  = 'obono.notes';
-const loadDone  = () => new Set(JSON.parse(localStorage.getItem(DONE_KEY)  || '[]'));
-const saveDone  = s => localStorage.setItem(DONE_KEY,  JSON.stringify([...s]));
-const loadNotes = () => JSON.parse(localStorage.getItem(NOTE_KEY) || '{}');
-const saveNotes = o => localStorage.setItem(NOTE_KEY, JSON.stringify(o));
+/* ---------- 2.  STORAGE -------------------------------------------- */
+const DONE_KEY    = 'obono.done';
+const NOTE_KEY    = 'obono.notes';
+const CAT_KEY     = 'obono.noteCats';
 
-let doneSet   = loadDone();
-let userNotes = loadNotes();
+const doneSet     = new Set(JSON.parse(localStorage.getItem(DONE_KEY)  || '[]'));
+const userNotes   = JSON.parse(localStorage.getItem(NOTE_KEY) || '{}');
+const noteCats    = JSON.parse(localStorage.getItem(CAT_KEY) || '{}');
 
-/* ===== RÉFÉRENCES DOM ================================================= */
-const lists         = document.getElementById('lists');
-const progressBar   = document.getElementById('progressBar');
-const progressLabel = document.getElementById('progressLabel');
-const appBar        = document.querySelector('.app-bar');
+const saveDone    = ()=>localStorage.setItem(DONE_KEY,  JSON.stringify([...doneSet]));
+const saveNotes   = ()=>localStorage.setItem(NOTE_KEY, JSON.stringify(userNotes));
+const saveCats    = ()=>localStorage.setItem(CAT_KEY,  JSON.stringify(noteCats));
 
-const modal         = document.getElementById('noteModal');
-const noteTask      = document.getElementById('noteTask');
-const defaultNoteEl = document.getElementById('defaultNote');
-const userNoteTA    = document.getElementById('userNote');
+/* ---------- 3.  DOM COURANTS --------------------------------------- */
+const lists        = document.getElementById('lists');
+const progressBar  = document.getElementById('progressBar');
+const progressLbl  = document.getElementById('progressLabel');
+const intro        = document.getElementById('intro');
+const enterBtn     = document.getElementById('enterBtn');
+const appBar       = document.querySelector('.app-bar');
 
-/* ===== OBSERVER RÉVÉLATION =========================================== */
-const obs = new IntersectionObserver(entries =>
-  entries.forEach(e => e.target.classList.toggle('active', e.isIntersecting)),
-  { threshold: .15 }
-);
+const noteModal    = document.getElementById('noteModal');
+const noteTaskLbl  = document.getElementById('noteTask');
+const defaultNote  = document.getElementById('defaultNote');
+const userTA       = document.getElementById('userNote');
+const catSelect    = document.getElementById('noteCategory');
 
-/* ===== CONSTRUCTION DES SECTIONS ===================================== */
-SLOTS.forEach(s => {
-  const section = document.createElement('section');
-  section.className   = 'slot reveal';
-  section.dataset.slot = s.id;
-  section.innerHTML =
-    `<h2><i data-lucide="folder"></i>${s.label}</h2><ul class="task-list"></ul>`;
-  lists.appendChild(section);
-  obs.observe(section);
-});
+const reportBtn    = document.getElementById('reportBtn');
+const reportModal  = document.getElementById('reportModal');
+const reportOut    = document.getElementById('reportOut');
+const copyReport   = document.getElementById('copyReport');
 
-/* ===== RENDU DES TÂCHES ============================================== */
-function renderTasks() {
-  document.querySelectorAll('.task-list').forEach(ul => (ul.innerHTML = ''));
-  TASKS.forEach((t, i) => {
-    const li = document.createElement('li');
-    li.className = `task reveal delay-${i % 6}` +
-                   (doneSet.has(i) ? ' completed' : '');
-    li.dataset.i = i;
+/* ---------- 4.  BUILD SECTIONS & TASKS ----------------------------- */
+const obs = new IntersectionObserver(e =>
+  e.forEach(x=>x.target.classList.toggle('active',x.isIntersecting)),{threshold:.15});
 
-    /* libellé + bouton-emoji note 🗒️ */
-    li.innerHTML =
-      `<span class="label">${t.text}</span>
-       <button class="note-btn" type="button" title="Notes"
-               aria-label="Notes" data-i="${i}">🗒️</button>`;
+function buildSections(){
+  SLOTS.forEach(s=>{
+    const sec=document.createElement('section');
+    sec.className='slot reveal';sec.dataset.slot=s.id;
+    sec.innerHTML=`<h2><i data-lucide="folder"></i>${s.label}</h2><ul class="task-list"></ul>`;
+    lists.appendChild(sec);obs.observe(sec);
+  });
+}
 
-    li.addEventListener('click', handleClick, { passive:true });
-    li.querySelector('.note-btn').addEventListener('click', e => {
-      e.stopPropagation();          // évite le toggle
-      openModal(i);
+function renderTasks(){
+  document.querySelectorAll('.task-list').forEach(u=>u.innerHTML='');
+  TASKS.forEach((t,i)=>{
+    const li=document.createElement('li');
+    li.className=`task reveal delay-${i%6}`+(doneSet.has(i)?' completed':'');
+    li.dataset.i=i;
+    li.innerHTML=`<span class="label">${t.text}</span>
+                  <button class="note-btn" title="Notes" aria-label="Notes" data-i="${i}">🗒️</button>`;
+    li.addEventListener('click',toggleTask);
+    li.querySelector('.note-btn').addEventListener('click',e=>{
+      e.stopPropagation();openNote(i);
     });
-
-    document
-      .querySelector(`section[data-slot="${t.slot}"] ul`)
-      .appendChild(li);
-
+    document.querySelector(`section[data-slot="${t.slot}"] ul`).appendChild(li);
     obs.observe(li);
   });
-
-  lucide.createIcons();             // autres icônes (folder…) via Lucide
+  lucide.createIcons();
 }
 
-/* ===== CLIC SIMPLE : TOGGLE ========================================== */
-function handleClick(e) {
-  const el  = e.currentTarget;
-  const idx = +el.dataset.i;
-  toggle(idx, el);
-}
-
-/* ===== TOGGLE + PROGRESSION ========================================= */
-function toggle(i, el) {
-  doneSet.has(i) ? doneSet.delete(i) : doneSet.add(i);
-  saveDone(doneSet);
-
-  el.classList.toggle('completed');
-  el.classList.remove('tick'); void el.offsetWidth;
-  el.classList.add('tick');
-
+/* ---------- 5.  LOGIQUE TÂCHE / PROGRÈS ---------------------------- */
+function toggleTask(e){
+  const i=+e.currentTarget.dataset.i;
+  doneSet.has(i)?doneSet.delete(i):doneSet.add(i);
+  saveDone();
+  e.currentTarget.classList.toggle('completed');
   updateProgress(true);
 }
-function updateProgress(pulse=false) {
-  const pct = Math.round((doneSet.size / TASKS.length) * 100);
-  progressBar.style.width   = pct + '%';
-  progressLabel.textContent = pct + ' %';
+function updateProgress(pulse=false){
+  const pct=Math.round(doneSet.size/TASKS.length*100);
+  progressBar.style.width=pct+'%';progressLbl.textContent=pct+' %';
+  if(pulse){progressBar.classList.remove('pulse');void progressBar.offsetWidth;progressBar.classList.add('pulse');}
+}
 
-  if (pulse) {
-    progressBar.classList.remove('pulse'); void progressBar.offsetWidth;
-    progressBar.classList.add('pulse');
+/* ---------- 6.  MODAL NOTES ---------------------------------------- */
+let current=null;
+catSelect.innerHTML=REPORT_CATEGORIES.map(c=>`<option>${c}</option>`).join('');
+function openNote(i){
+  current=i;
+  noteTaskLbl.textContent=TASKS[i].text;
+  defaultNote.textContent='—';
+  userTA.value=userNotes[i]||'';
+  catSelect.value=noteCats[i]||REPORT_CATEGORIES[REPORT_CATEGORIES.length-1];
+  noteModal.classList.remove('hidden');noteModal.classList.add('open');
+}
+function closeNote(){
+  if(current!==null){
+    const txt=userTA.value.trim();
+    const cat=catSelect.value;
+    if(txt){userNotes[current]=txt;noteCats[current]=cat;}
+    else {delete userNotes[current];delete noteCats[current];}
+    saveNotes();saveCats();current=null;
   }
+  noteModal.classList.remove('open');noteModal.classList.add('hidden');
 }
+document.getElementById('closeModal').addEventListener('click',closeNote);
+noteModal.addEventListener('click',e=>{if(e.target===noteModal)closeNote();});
 
-/* ===== MODAL NOTES =================================================== */
-let current = null;
-function openModal(i) {
-  current = i;
-  noteTask.textContent      = TASKS[i].text;
-  defaultNoteEl.textContent = PRESET_NOTES[i] || '—';
-  userNoteTA.value          = userNotes[i] || '';
-  modal.classList.remove('hidden'); modal.classList.add('open');
-}
-function closeModal() {
-  if (current !== null) {
-    const val = userNoteTA.value.trim();
-    if (val) userNotes[current] = val; else delete userNotes[current];
-    saveNotes(userNotes); current = null;
-  }
-  modal.classList.remove('open'); modal.classList.add('hidden');
-}
-document.getElementById('closeModal').addEventListener('click', closeModal);
-modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
-/* ===== RESET BOUTON ================================================== */
-document.getElementById('resetBtn').addEventListener('click', e => {
-  const btn = e.currentTarget;
-  btn.classList.add('reset-spin');
-  setTimeout(() => btn.classList.remove('reset-spin'), 600);
-
-  doneSet.clear(); userNotes = {};
-  saveDone(doneSet); saveNotes(userNotes);
-
-  renderTasks(); updateProgress(true);
+/* ---------- 7.  RAPPORT DE SHIFT ----------------------------------- */
+reportBtn.addEventListener('click',generateReport);
+copyReport.addEventListener('click',()=>{
+  navigator.clipboard.writeText(reportOut.value).then(()=>copyReport.textContent='Copié !');
 });
+document.getElementById('closeReport').addEventListener('click',()=>reportModal.classList.add('hidden'));
 
-/* ===== INTRO & DATE ================================================== */
-const intro    = document.getElementById('intro');
-const enterBtn = document.getElementById('enterBtn');
-
-function launchApp() {
-  intro.classList.add('fade-out');
-  appBar.classList.add('show'); appBar.classList.remove('hidden');
-}
-enterBtn.addEventListener('click', launchApp);
-intro.addEventListener('keydown', e => { if (e.key === 'Enter') launchApp(); });
-enterBtn.focus();
-
-document.getElementById('today').textContent =
-  new Date().toLocaleDateString('fr-FR', {
-    weekday:'long', year:'numeric', month:'long', day:'numeric'
+function generateReport(){
+  /*  regroupement notes -> catégories  */
+  const buckets={};REPORT_CATEGORIES.forEach(c=>buckets[c]=[]);
+  Object.keys(userNotes).forEach(i=>{
+    const cat=noteCats[i]||REPORT_CATEGORIES.at(-1);
+    buckets[cat].push(userNotes[i]);
   });
 
-/* ===== INIT ========================================================== */
-renderTasks();
-updateProgress();
+  /*  construis la chaîne finale  */
+  let txt=`SHIFT du : ${new Date().toLocaleDateString('fr-FR')}\n\n`;
+  REPORT_CATEGORIES.forEach(cat=>{
+    txt+=`- ${cat} :\n`;
+    buckets[cat].forEach(n=>txt+=`   • ${n.replace(/\n/g,' ')}\n`);
+    if(!buckets[cat].length) txt+='   •\n';
+  });
+  txt+=`\nSignature\n`;
+  reportOut.value=txt;
+  copyReport.textContent='Copier';
+  reportModal.classList.remove('hidden');
+}
+
+/* ---------- 8.  INTRO + RESET -------------------------------------- */
+enterBtn.addEventListener('click',()=>{intro.classList.add('fade-out');appBar.classList.add('show');});
+intro.addEventListener('keydown',e=>{if(e.key==='Enter')enterBtn.click();});
+document.getElementById('today').textContent=
+  new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+
+document.getElementById('resetBtn').addEventListener('click',()=>{
+  doneSet.clear();for(const k of[NOTE_KEY,CAT_KEY])localStorage.removeItem(k);
+  Object.keys(userNotes).forEach(k=>delete userNotes[k]);
+  Object.keys(noteCats).forEach(k=>delete noteCats[k]);
+  saveDone();renderTasks();updateProgress(true);
+});
+
+/* ---------- 9.  INIT ------------------------------------------------ */
+buildSections();renderTasks();updateProgress();

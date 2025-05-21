@@ -1,216 +1,267 @@
-/* ==========================================================
-   O B O N O · Night-Shift – v4 (finie)
-========================================================== */
+/* =======================================================================
+   O  B  O  N  O   ·   Night-Shift   (v5)
+   -----------------------------------------------------------------------
+   • Tâches cochables
+   • Notes catégorisées
+   • Résumé auto-généré (éditable)
+   • Données conservées en local-storage
+   ==================================================================== */
+(() => {               // IIFE ⇒ tout reste proprement dans une closure
+/* ────────────────────────── 1. CONFIG ─────────────────────────────── */
 
-/* ---------- Config ---------- */
 const SLOTS = [
-  { id:'arrivee',     label:'Arrivée' },
-  { id:'soiree',      label:'Soirée' },
-  { id:'nuit',        label:'Nuit' },
-  { id:'matinee',     label:'Matinée' },
-  { id:'finmatinee',  label:'Fin de matinée' }
+  {id:'arrivee',     label:'Arrivée'},
+  {id:'soiree',      label:'Soirée'},
+  {id:'nuit',        label:'Nuit'},
+  {id:'matinee',     label:'Matinée'},
+  {id:'finmatinee',  label:'Fin de matinée'}
 ];
 
 const TASKS = [
-  ['arrivee','Passation des infos'],
-  ['arrivee','Caisse'],
-  ['arrivee','Piscine'],
-  ['arrivee',"Imprimer l'état d'occupation et d'hébergement"],
-  ['soiree','Fermeture du spa (21 h)'],
-  ['soiree','Serviettes piscine'],
-  ['soiree','Première ronde – chambres non arrivées'],
-  ['soiree','Préparer les arrivées du lendemain'],
-  ['soiree','Régler le volume musique'],
-  ['soiree',"Fermer la porte de l'hôtel"],
-  ['soiree','Ronde de fermeture'],
-  ['nuit','Trier les tickets resto/bar'],
-  ['nuit','Préparer le mail Medialog'],
-  ['nuit','Ménage (plus aucun client)'],
-  ['nuit','Clôture de caisse à 2 h'],
-  ['nuit','Envoyer le mail Medialog'],
-  ['nuit','Temps calme'],
-  ['matinee',"Ouvrir la porte d'entrée"],
-  ['matinee','Mise en place petit-déj'],
-  ['matinee','VAD Expedia / Staycation'],
-  ['matinee',"Ronde d'ouverture"],
-  ['finmatinee','Caisse après clôture matin'],
-  ['finmatinee','Sortir les poubelles'],
-  ['finmatinee',"Noter l'heure de fin"],
-  ['finmatinee','Finito pipo']
+ ['arrivee','Passation des infos'],
+ ['arrivee','Caisse'],
+ ['arrivee','Piscine'],
+ ['arrivee',"Imprimer l'état d'occupation et d'hébergement"],
+ ['soiree','Fermeture du spa (21 h)'],
+ ['soiree','Serviettes piscine'],
+ ['soiree','Première ronde – chambres non arrivées'],
+ ['soiree','Préparer les arrivées du lendemain'],
+ ['soiree','Régler le volume musique'],
+ ['soiree',"Fermer la porte de l'hôtel"],
+ ['soiree','Ronde de fermeture'],
+ ['nuit','Trier les tickets resto/bar'],
+ ['nuit','Préparer le mail Medialog'],
+ ['nuit','Ménage (plus aucun client)'],
+ ['nuit','Clôture de caisse à 2 h'],
+ ['nuit','Envoyer le mail Medialog'],
+ ['nuit','Temps calme'],
+ ['matinee',"Ouvrir la porte d'entrée"],
+ ['matinee','Mise en place petit-déj'],
+ ['matinee','VAD Expedia / Staycation'],
+ ['matinee',"Ronde d'ouverture"],
+ ['finmatinee','Caisse après clôture matin'],
+ ['finmatinee','Sortir les poubelles'],
+ ['finmatinee',"Noter l'heure de fin"],
+ ['finmatinee','Finito pipo']
 ].map(([slot,text])=>({slot,text}));
 
-const CATS = [
-  'Retour client','Délogement','No-show','Caisse',
-  'Etages','Technique','Proposition Tarifaire','Autre info importante'
+const CATEGORIES = [
+  'Retour client',
+  'Délogement',
+  'No-show',
+  'Caisse',
+  'Etages',
+  'Technique',
+  'Proposition Tarifaire',
+  'Autre info importante'
 ];
 
-/* ---------- Storage ---------- */
-const DONE_KEY='obono.done', NOTE_KEY='obono.notes', CAT_KEY='obono.cats';
-const done  = new Set(JSON.parse(localStorage.getItem(DONE_KEY) || '[]'));
-const notes = JSON.parse(localStorage.getItem(NOTE_KEY) || '{}');
-const cats  = JSON.parse(localStorage.getItem(CAT_KEY)  || '{}');
-const save  = () => {
-  localStorage.setItem(DONE_KEY, JSON.stringify([...done]));
+/* ──────────────────────── 2. LOCAL-STORAGE ────────────────────────── */
+
+const DONE_KEY = 'obono.done';
+const NOTE_KEY = 'obono.notes';
+const CAT_KEY  = 'obono.cats';
+
+const doneSet = new Set(JSON.parse(localStorage.getItem(DONE_KEY) || '[]'));
+const notes   = JSON.parse(localStorage.getItem(NOTE_KEY) || '{}');
+const cats    = JSON.parse(localStorage.getItem(CAT_KEY)  || '{}');
+
+function saveState(){
+  localStorage.setItem(DONE_KEY, JSON.stringify([...doneSet]));
   localStorage.setItem(NOTE_KEY, JSON.stringify(notes));
   localStorage.setItem(CAT_KEY , JSON.stringify(cats));
-};
+}
 
-/* ---------- DOM refs ---------- */
-const lists       = document.getElementById('lists');
-const progressBar = document.getElementById('progressBar');
-const progressLbl = document.getElementById('progressLabel');
+/* ───────────────────────── 3. RÉFÉRENCES DOM ──────────────────────── */
 
-const intro   = document.getElementById('intro');
-const enterBtn= document.getElementById('enterBtn');
-const appBar  = document.querySelector('.app-bar');
+const elLists      = document.getElementById('lists');
+const elProgress   = document.getElementById('progressBar');
+const elProgressLb = document.getElementById('progressLabel');
+const elAppBar     = document.querySelector('.app-bar');
+const elIntro      = document.getElementById('intro');
+const elEnterBtn   = document.getElementById('enterBtn');
 
-const noteModal = document.getElementById('noteModal');
-const noteTask  = document.getElementById('noteTask');
-const userTA    = document.getElementById('userNote');
-const catSel    = document.getElementById('noteCategory');
+const elNoteModal  = document.getElementById('noteModal');
+const elNoteTask   = document.getElementById('noteTask');
+const elUserNote   = document.getElementById('userNote');
+const elCatSel     = document.getElementById('noteCategory');
+const elCloseNote  = document.getElementById('closeModal');
 
-const reportModal = document.getElementById('reportModal');
-const reportOut   = document.getElementById('reportOut');
+const elSummaryBtn = document.getElementById('summaryBtn');
+const elReportModal = document.getElementById('reportModal');
+const elReportOut   = document.getElementById('reportOut');
+const elCopyReport  = document.getElementById('copyReport');
+const elCloseReport = document.getElementById('closeReport');
 
-const resetBtn   = document.getElementById('resetBtn');
-const summaryBtn = document.getElementById('summaryBtn');
+const elResetBtn   = document.getElementById('resetBtn');
+const elToday      = document.getElementById('today');
 
-/* ---------- Intersection observer (déclaré AVANT build) ---------- */
-const obs = new IntersectionObserver(
-  e=>e.forEach(x=>x.target.classList.toggle('active',x.isIntersecting)),
-  {threshold:.15}
+/* ───────────────────────── 4. OBSERVER REVEAL ─────────────────────── */
+
+const revealObs = new IntersectionObserver(
+  entries => entries.forEach(e => e.target.classList.toggle('active', e.isIntersecting)),
+  { threshold: .15 }
 );
 
-/* ---------- Build sections (avec observer) ---------- */
+/* ───────────────────────── 5. CONSTRUCTION UI ─────────────────────── */
+
 function buildSections(){
-  SLOTS.forEach(s=>{
-    const sec=document.createElement('section');
-    sec.className='slot reveal'; sec.dataset.slot=s.id;
-    sec.innerHTML=`<h2><i data-lucide="folder"></i>${s.label}</h2><ul class="task-list"></ul>`;
-    lists.appendChild(sec);
-    obs.observe(sec);
+  SLOTS.forEach(slot=>{
+    const section = document.createElement('section');
+    section.className = 'slot reveal';
+    section.dataset.slot = slot.id;
+    section.innerHTML = `<h2><i data-lucide="folder"></i>${slot.label}</h2><ul class="task-list"></ul>`;
+    elLists.appendChild(section);
+    revealObs.observe(section);
   });
 }
 
-/* ---------- Render tasks ---------- */
 function renderTasks(){
-  document.querySelectorAll('.task-list').forEach(u=>u.innerHTML='');
+  document.querySelectorAll('.task-list').forEach(ul=>ul.innerHTML='');
 
-  TASKS.forEach((t,i)=>{
-    const li=document.createElement('li');
-    li.className=`task reveal delay-${i%6}`+(done.has(i)?' completed':'');
-    li.dataset.i=i;
+  TASKS.forEach((task, idx)=>{
+    const li = document.createElement('li');
+    li.className = `task reveal delay-${idx%6}` + (doneSet.has(idx) ? ' completed':'');
+    li.dataset.i = idx;
 
     li.innerHTML = `
-      <span class="label">${t.text}</span>
-      <button class="note-btn" aria-label="Notes" data-i="${i}">
+      <span class="label">${task.text}</span>
+      <button class="note-btn" title="Notes" aria-label="Notes" data-i="${idx}">
         <i data-lucide="file-text"></i>
-      </button>`;
+      </button>
+    `;
 
-    li.addEventListener('click',toggleTask);
-    li.querySelector('.note-btn').addEventListener('click',e=>{
-      e.stopPropagation(); openNote(i);
+    li.addEventListener('click', handleToggle);
+    li.querySelector('.note-btn').addEventListener('click', e=>{
+      e.stopPropagation(); openNote(idx);
     });
 
-    document.querySelector(`section[data-slot="${t.slot}"] ul`).appendChild(li);
-    obs.observe(li);
+    document.querySelector(`section[data-slot="${task.slot}"] ul`).appendChild(li);
+    revealObs.observe(li);
   });
 
-  lucide.createIcons();            // convertit toutes les <i> lucide
+  lucide.createIcons();
 }
 
-/* ---------- Task toggle & progress ---------- */
-function toggleTask(e){
-  const i=+e.currentTarget.dataset.i;
-  done.has(i)?done.delete(i):done.add(i);
-  save(); e.currentTarget.classList.toggle('completed');
+/* ─────────────────────── 6. TÂCHES & PROGRÈS ──────────────────────── */
+
+function handleToggle(e){
+  const i = +e.currentTarget.dataset.i;
+  doneSet.has(i) ? doneSet.delete(i) : doneSet.add(i);
+  saveState();
+  e.currentTarget.classList.toggle('completed');
   updateProgress(true);
 }
 
 function updateProgress(pulse=false){
-  const pct=Math.round(done.size/TASKS.length*100);
-  progressBar.style.width=pct+'%';
-  progressLbl.textContent=pct+' %';
+  const pct = Math.round(doneSet.size / TASKS.length * 100);
+  elProgress.style.width = pct + '%';
+  elProgressLb.textContent = pct + ' %';
   if(pulse){
-    progressBar.classList.remove('pulse'); void progressBar.offsetWidth;
-    progressBar.classList.add('pulse');
+    elProgress.classList.remove('pulse'); void elProgress.offsetWidth;
+    elProgress.classList.add('pulse');
   }
 }
 
-/* ---------- Note modal ---------- */
-catSel.innerHTML = CATS.map(c=>`<option>${c}</option>`).join('');
-let current = null;
+/* ─────────────────────── 7. MODAL NOTE ────────────────────────────── */
+
+elCatSel.innerHTML = CATEGORIES.map(c=>`<option>${c}</option>`).join('');
+let currentIdx = null;
 
 function openNote(i){
-  current = i;
-  noteTask.textContent = TASKS[i].text;
-  userTA.value = notes[i] || '';
-  catSel.value = cats[i] || CATS.at(-1);
-  noteModal.classList.remove('hidden');
+  currentIdx = i;
+  elNoteTask.textContent = TASKS[i].text;
+  elUserNote.value = notes[i] || '';
+  elCatSel.value = cats[i] || CATEGORIES.at(-1);
+  elNoteModal.classList.remove('hidden');
+  elUserNote.focus();
 }
 
 function closeNote(){
-  if(current!==null){
-    const v=userTA.value.trim(), c=catSel.value;
-    if(v){ notes[current]=v; cats[current]=c; }
-    else { delete notes[current]; delete cats[current]; }
-    save(); current = null;
+  if(currentIdx !== null){
+    const val = elUserNote.value.trim();
+    const cat = elCatSel.value;
+    if(val){
+      notes[currentIdx] = val;
+      cats[currentIdx]  = cat;
+    }else{
+      delete notes[currentIdx];
+      delete cats[currentIdx];
+    }
+    saveState();
+    currentIdx = null;
   }
-  noteModal.classList.add('hidden');
+  elNoteModal.classList.add('hidden');
 }
-document.getElementById('closeModal').addEventListener('click', closeNote);
-noteModal.addEventListener('click', e=>{ if(e.target===noteModal) closeNote(); });
 
-/* ---------- Summary (rapport) ---------- */
+elCloseNote.addEventListener('click', closeNote);
+elNoteModal.addEventListener('click', e=>{ if(e.target === elNoteModal) closeNote(); });
+
+/* ─────────────────────── 8. MODAL RÉSUMÉ ──────────────────────────── */
+
 function buildReport(){
-  const bucket={}; CATS.forEach(c=>bucket[c]=[]);
+  // regrouper les notes par catégorie
+  const bucket = {}; CATEGORIES.forEach(c=>bucket[c]=[]);
   Object.keys(notes).forEach(i=>{
-    const cat=cats[i]||CATS.at(-1);
+    const cat = cats[i] || CATEGORIES.at(-1);
     bucket[cat].push(notes[i]);
   });
 
-  let txt=`SHIFT du : ${new Date().toLocaleDateString('fr-FR')}\n\n`;
-  CATS.forEach(c=>{
-    txt+=`- ${c} :\n`;
-    (bucket[c].length?bucket[c]:['']).forEach(n=>txt+=`   • ${n.replace(/\n/g,' ')}\n`);
+  // composer la chaîne finale
+  let txt = `SHIFT du : ${new Date().toLocaleDateString('fr-FR')}\n\n`;
+  CATEGORIES.forEach(cat=>{
+    txt += `- ${cat} :\n`;
+    const arr = bucket[cat];
+    if(arr.length){
+      arr.forEach(n=>txt += `   • ${n.replace(/\n/g,' ')}\n`);
+    } else {
+      txt += '   •\n';
+    }
   });
-  txt+='\nSignature\n';
+  txt += '\nSignature\n';
 
-  reportOut.value = txt;
-  document.getElementById('copyReport').textContent='Copier';
-  reportModal.classList.remove('hidden');
+  elReportOut.value = txt;
+  elCopyReport.textContent = 'Copier';
+  elReportModal.classList.remove('hidden');
 }
 
-summaryBtn.addEventListener('click', buildReport);
-
-document.getElementById('copyReport').addEventListener('click', ()=>{
-  navigator.clipboard.writeText(reportOut.value).then(()=>{
-    document.getElementById('copyReport').textContent='Copié !';
+elSummaryBtn.addEventListener('click', buildReport);
+elCopyReport.addEventListener('click', ()=>{
+  navigator.clipboard.writeText(elReportOut.value).then(()=>{
+    elCopyReport.textContent = 'Copié !';
   });
 });
-document.getElementById('closeReport').addEventListener('click',
-  ()=>reportModal.classList.add('hidden'));
+elCloseReport.addEventListener('click', ()=>elReportModal.classList.add('hidden'));
 
-/* ---------- Intro + reset ---------- */
-enterBtn.addEventListener('click', ()=>{
-  intro.classList.add('fade-out');
-  appBar.classList.add('show');
-});
-intro.addEventListener('keydown', e=>{
-  if(e.key==='Enter') enterBtn.click();
-});
-document.getElementById('today').textContent =
-  new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+/* ─────────────────────── 9. INTRO & RESET ─────────────────────────── */
 
-resetBtn.addEventListener('click', ()=>{
-  resetBtn.classList.add('reset-spin');
-  setTimeout(()=>resetBtn.classList.remove('reset-spin'),600);
-  done.clear(); Object.keys(notes).forEach(k=>delete notes[k]);
+elEnterBtn.addEventListener('click', ()=>{
+  elIntro.classList.add('fade-out');
+  elAppBar.classList.add('show');
+});
+elIntro.addEventListener('keydown', e=>{
+  if(e.key === 'Enter') elEnterBtn.click();
+});
+elToday.textContent = new Date().toLocaleDateString('fr-FR',{
+  weekday:'long', year:'numeric', month:'long', day:'numeric'
+});
+
+elResetBtn.addEventListener('click', ()=>{
+  elResetBtn.classList.add('reset-spin');
+  setTimeout(()=>elResetBtn.classList.remove('reset-spin'), 600);
+
+  doneSet.clear();
+  Object.keys(notes).forEach(k=>delete notes[k]);
   Object.keys(cats ).forEach(k=>delete cats [k]);
-  save(); renderTasks(); updateProgress(true);
+  saveState();
+  renderTasks();
+  updateProgress(true);
 });
 
-/* ---------- INIT ---------- */
-buildSections();          // maintenant OBS existe → OK
+/* ─────────────────────── 10. INIT ─────────────────────────────────── */
+
+buildSections();
 renderTasks();
 updateProgress();
+
+/* IIFE end */})();

@@ -1,3 +1,11 @@
+/* =======================================================================
+   O B O N O · Night-Audit Assistant
+   Fichier : obono.js        —  version sans double-clic
+   -----------------------------------------------------------------------
+   • Clic sur la ligne      → coche/décoche la tâche.
+   • Clic sur le bouton note → ouvre la fenêtre de notes.
+   ===================================================================== */
+
 /* ===== SECTIONS & TÂCHES ============================================== */
 const SLOTS = [
   { id: 'arrivee',     label: 'Arrivée' },
@@ -69,115 +77,125 @@ const defaultNoteEl = document.getElementById('defaultNote');
 const userNoteTA    = document.getElementById('userNote');
 
 /* ===== REVEAL OBSERVER =============================================== */
-const obs = new IntersectionObserver(entries=>{
-  entries.forEach(e=>e.target.classList.toggle('active', e.isIntersecting));
-},{threshold:.15});
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => e.target.classList.toggle('active', e.isIntersecting));
+}, { threshold: .15 });
 
 /* ===== BUILD SECTIONS ================================================= */
-SLOTS.forEach(s=>{
-  const section=document.createElement('section');
-  section.className='slot reveal';
-  section.dataset.slot=s.id;
-  section.innerHTML=`<h2><i data-lucide="folder"></i>${s.label}</h2><ul class="task-list"></ul>`;
+SLOTS.forEach(s => {
+  const section = document.createElement('section');
+  section.className   = 'slot reveal';
+  section.dataset.slot = s.id;
+  section.innerHTML   =
+    `<h2><i data-lucide="folder"></i>${s.label}</h2><ul class="task-list"></ul>`;
   lists.appendChild(section);
   obs.observe(section);
 });
 
 /* ===== RENDER TASKS =================================================== */
-function renderTasks(){
-  document.querySelectorAll('.task-list').forEach(ul=>ul.innerHTML='');
-  TASKS.forEach((t,i)=>{
-    const li=document.createElement('li');
-    li.className=`task reveal delay-${i%6}`+(doneSet.has(i)?' completed':'');
-    li.innerHTML=`<span class="label">${t.text}</span>`;
-    li.dataset.i=i;
-    li.addEventListener('click', handleClick, {passive:true});
-    document.querySelector(`section[data-slot="${t.slot}"] ul`).appendChild(li);
+function renderTasks() {
+  document.querySelectorAll('.task-list').forEach(ul => (ul.innerHTML = ''));
+  TASKS.forEach((t, i) => {
+    const li = document.createElement('li');
+    li.className = `task reveal delay-${i % 6}` + (doneSet.has(i) ? ' completed' : '');
+    li.dataset.i = i;
+
+    /* --- contenu : libellé + bouton note ----------------------------- */
+    li.innerHTML =
+      `<span class="label">${t.text}</span>
+       <button class="note-btn" type="button" title="Note" data-i="${i}">
+         <i data-lucide="sticky-note"></i>
+       </button>`;
+
+    /* —- interactions —- */
+    li.addEventListener('click', handleClick, { passive: true });
+    li.querySelector('.note-btn').addEventListener('click', e => {
+      e.stopPropagation();              // n’active pas le toggle
+      openModal(i);
+    });
+
+    document
+      .querySelector(`section[data-slot="${t.slot}"] ul`)
+      .appendChild(li);
+
     obs.observe(li);
   });
-  lucide.createIcons();
+  lucide.createIcons();                 // met à jour les icônes
 }
 
-/* ===== CLICK / DOUBLE-CLICK (150 ms même élément) ==================== */
-let lastEl=null, lastTime=0;
-const DBL=200;
-
-function handleClick(e){
-  const el=e.currentTarget;
-  const idx=+el.dataset.i;
-  const now=performance.now();
-
-  if(el===lastEl && now-lastTime<=DBL){
-    openModal(idx);
-    lastEl=null; lastTime=0;
-  }else{
-    toggle(idx, el);
-    lastEl=el; lastTime=now;
-  }
+/* ===== CLICK (plus de double-clic) =================================== */
+function handleClick(e) {
+  const el  = e.currentTarget;
+  const idx = +el.dataset.i;
+  toggle(idx, el);                      // coche/décoche immédiatement
 }
 
 /* ===== TOGGLE & PROGRESS ============================================= */
-function toggle(i, el){
+function toggle(i, el) {
   doneSet.has(i) ? doneSet.delete(i) : doneSet.add(i);
   saveDone(doneSet);
+
   el.classList.toggle('completed');
   el.classList.remove('tick'); void el.offsetWidth; el.classList.add('tick');
   updateProgress(true);
 }
-function updateProgress(pulse=false){
-  const pct=Math.round(doneSet.size/TASKS.length*100);
-  progressBar.style.width=pct+'%';
-  progressLabel.textContent=pct+' %';
-  if(pulse){
+function updateProgress(pulse = false) {
+  const pct = Math.round((doneSet.size / TASKS.length) * 100);
+  progressBar.style.width   = pct + '%';
+  progressLabel.textContent = pct + ' %';
+  if (pulse) {
     progressBar.classList.remove('pulse'); void progressBar.offsetWidth;
     progressBar.classList.add('pulse');
   }
 }
 
 /* ===== MODAL NOTES ==================================================== */
-let current=null;
-function openModal(i){
-  current=i;
-  noteTask.textContent         = TASKS[i].text;
-  defaultNoteEl.textContent    = PRESET_NOTES[i] || '—';
-  userNoteTA.value             = userNotes[i] || '';
+let current = null;
+function openModal(i) {
+  current = i;
+  noteTask.textContent      = TASKS[i].text;
+  defaultNoteEl.textContent = PRESET_NOTES[i] || '—';
+  userNoteTA.value          = userNotes[i] || '';
   modal.classList.remove('hidden'); modal.classList.add('open');
 }
-function closeModal(){
-  if(current!==null){
-    const val=userNoteTA.value.trim();
-    if(val) userNotes[current]=val; else delete userNotes[current];
-    saveNotes(userNotes); current=null;
+function closeModal() {
+  if (current !== null) {
+    const val = userNoteTA.value.trim();
+    if (val) userNotes[current] = val; else delete userNotes[current];
+    saveNotes(userNotes); current = null;
   }
   modal.classList.remove('open'); modal.classList.add('hidden');
 }
 document.getElementById('closeModal').addEventListener('click', closeModal);
-modal.addEventListener('click', e=>{ if(e.target===modal) closeModal(); });
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
 
 /* ===== RESET ========================================================== */
-document.getElementById('resetBtn').addEventListener('click', e=>{
-  const btn=e.currentTarget;
+document.getElementById('resetBtn').addEventListener('click', e => {
+  const btn = e.currentTarget;
   btn.classList.add('reset-spin');
-  setTimeout(()=>btn.classList.remove('reset-spin'),600);
-  doneSet.clear(); userNotes={};
+  setTimeout(() => btn.classList.remove('reset-spin'), 600);
+  doneSet.clear(); userNotes = {};
   saveDone(doneSet); saveNotes(userNotes);
   renderTasks(); updateProgress(true);
 });
 
 /* ===== INTRO & DATE =================================================== */
-const intro=document.getElementById('intro');
-const enterBtn=document.getElementById('enterBtn');
+const intro    = document.getElementById('intro');
+const enterBtn = document.getElementById('enterBtn');
 
-function launchApp(){
+function launchApp() {
   intro.classList.add('fade-out');
   appBar.classList.add('show'); appBar.classList.remove('hidden');
 }
 enterBtn.addEventListener('click', launchApp);
-intro.addEventListener('keydown', e=>{ if(e.key==='Enter') launchApp(); });
+intro.addEventListener('keydown', e => { if (e.key === 'Enter') launchApp(); });
 enterBtn.focus();
 
-document.getElementById('today').textContent=
-  new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('today').textContent =
+  new Date().toLocaleDateString('fr-FR', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
 
 /* ===== INIT =========================================================== */
-renderTasks(); updateProgress();
+renderTasks();
+updateProgress();

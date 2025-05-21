@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Obono · Night-Audit Assistant</title>
+  <title>Obono · Night Shift</title>
 
   <link rel="stylesheet" href="obono.css">
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -11,36 +11,36 @@
 </head>
 <body>
 
-<!-- ───── Intro ───── -->
+<!-- ─── Intro ─────────────────────────────────────────────────── -->
 <section id="intro">
   <div class="intro-box">
     <h1>OBONO</h1>
-    <p>Assistant Night-Audit</p>
+    <p>Night Shift</p>
     <button id="enterBtn">Entrer</button>
   </div>
 </section>
 
-<!-- ───── Barre d’application ───── -->
+<!-- ─── Barre d’app ───────────────────────────────────────────── -->
 <header class="app-bar hidden">
   <h2 id="today"></h2>
   <button id="resetBtn" class="icon-btn" title="Réinitialiser">⟳</button>
 </header>
 
-<!-- ───── Progression ───── -->
+<!-- ─── Progression ───────────────────────────────────────────── -->
 <div id="progressWrap">
   <div id="progressBar"></div>
   <span id="progressLabel">0 %</span>
 </div>
 
-<!-- ───── Listes (injectées) ───── -->
+<!-- ─── Listes (injectées) ────────────────────────────────────── -->
 <main id="lists"></main>
 
-<!-- ───── Bouton Résumé ───── -->
+<!-- ─── Bouton Résumé ─────────────────────────────────────────── -->
 <div class="summary-wrap">
   <button id="summaryBtn" class="wide-btn">Résumé du shift</button>
 </div>
 
-<!-- ───── Modal NOTE ───── -->
+<!-- ─── Modal NOTE ────────────────────────────────────────────── -->
 <div id="noteModal" class="modal hidden">
   <div class="modal-box">
     <h3 id="noteTask">Tâche</h3>
@@ -49,7 +49,7 @@
 
     <label class="nice-select">Catégorie
       <select id="noteCategory"></select>
-      <i data-lucide="chevron-down"></i>
+      <svg class="chevron" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5"/></svg>
     </label>
 
     <div class="modal-actions">
@@ -58,12 +58,12 @@
   </div>
 </div>
 
-<!-- ───── Modal RÉSUMÉ ───── -->
+<!-- ─── Modal RÉSUMÉ ──────────────────────────────────────────── -->
 <div id="reportModal" class="modal hidden">
   <div class="modal-box">
     <h3>Rapport de shift</h3>
 
-    <textarea id="reportOut" readonly></textarea>
+    <textarea id="reportOut"></textarea>
 
     <div class="modal-actions">
       <button id="copyReport">Copier</button>

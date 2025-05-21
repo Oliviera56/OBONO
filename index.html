@@ -11,7 +11,7 @@
 </head>
 <body>
 
-<!-- ─── Intro ─────────────────────────────────────────────────── -->
+<!-- ── INTRO ──────────────────────────────────────────────── -->
 <section id="intro">
   <div class="intro-box">
     <h1>OBONO</h1>
@@ -20,37 +20,41 @@
   </div>
 </section>
 
-<!-- ─── Barre d’app ───────────────────────────────────────────── -->
+<!-- ── BARRE D’APP ─────────────────────────────────────────── -->
 <header class="app-bar hidden">
   <h2 id="today"></h2>
   <button id="resetBtn" class="icon-btn" title="Réinitialiser">⟳</button>
 </header>
 
-<!-- ─── Progression ───────────────────────────────────────────── -->
+<!-- ── PROGRESSION ─────────────────────────────────────────── -->
 <div id="progressWrap">
   <div id="progressBar"></div>
   <span id="progressLabel">0 %</span>
 </div>
 
-<!-- ─── Listes (injectées) ────────────────────────────────────── -->
+<!-- ── LISTES (injectées) ──────────────────────────────────── -->
 <main id="lists"></main>
 
-<!-- ─── Bouton Résumé ─────────────────────────────────────────── -->
+<!-- ── BOUTON RÉSUMÉ ───────────────────────────────────────── -->
 <div class="summary-wrap">
   <button id="summaryBtn" class="wide-btn">Résumé du shift</button>
 </div>
 
-<!-- ─── Modal NOTE ────────────────────────────────────────────── -->
-<div id="noteModal" class="modal hidden">
+<!-- ── MODAL NOTE ──────────────────────────────────────────── -->
+<div id="noteModal" class="modal hidden" role="dialog" aria-modal="true">
   <div class="modal-box">
     <h3 id="noteTask">Tâche</h3>
 
     <textarea id="userNote" placeholder="Votre note…"></textarea>
 
-    <label class="nice-select">Catégorie
-      <select id="noteCategory"></select>
-      <svg class="chevron" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5"/></svg>
-    </label>
+    <!-- sélecteur custom -->
+    <div class="cat-wrapper">
+      <span class="cat-label">Catégorie</span>
+      <button id="catDisplay" class="cat-display">
+        <span id="catDisplayText"></span><i data-lucide="chevron-down"></i>
+      </button>
+      <ul id="catOptions" class="cat-options hidden"></ul>
+    </div>
 
     <div class="modal-actions">
       <button id="closeModal">Fermer</button>
@@ -58,8 +62,8 @@
   </div>
 </div>
 
-<!-- ─── Modal RÉSUMÉ ──────────────────────────────────────────── -->
-<div id="reportModal" class="modal hidden">
+<!-- ── MODAL RÉSUMÉ ────────────────────────────────────────── -->
+<div id="reportModal" class="modal hidden" role="dialog" aria-modal="true">
   <div class="modal-box">
     <h3>Rapport de shift</h3>
 

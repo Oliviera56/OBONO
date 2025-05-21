@@ -125,3 +125,69 @@ section.slot{margin-bottom:1.5rem}
 .note-btn:active{
   transform:translateY(-50%) scale(.9);
 }
+
+
+/* ================================================================
+   O B O N O · Night-Audit Assistant – Styles
+   Version : bouton note 🗒️ aligné extrême-droite (glass-morphism)
+   ============================================================== */
+
+/* ---------- Variables globales (exemple) ----------------------- */
+:root{
+  --ocea:#4fd1c5;               /* teinte turquoise principale   */
+  --glass-bg:rgba(255,255,255,.08);
+  --glass-bg-hover:rgba(255,255,255,.12);
+  --glass-brd:rgba(255,255,255,.15);
+  --task-hover:rgba(255,255,255,.03);
+  --transition:0.2s ease;
+}
+
+/* ---------- Liste des tâches ----------------------------------- */
+.task{
+  position:relative;            /* permet bouton absolu          */
+  display:flex; align-items:center;
+  gap:.6rem;
+  padding:.4rem .8rem;
+  padding-right:3.2rem;         /* place réservée au bouton note */
+  border-radius:6px;
+  transition:background var(--transition);
+}
+.task:hover{
+  background:var(--task-hover);
+}
+.task.completed .label{
+  text-decoration:line-through;
+  opacity:.55;
+}
+
+/* ---------- Label ---------------------------------------------------- */
+.label{ flex:1 1 auto; }
+
+/* ---------- Bouton note 🗒️ ----------------------------------------- */
+.note-btn{
+  position:absolute; top:50%; right:.8rem;
+  transform:translateY(-50%);
+  width:2.2rem; height:2.2rem;              /* + confortable mobile */
+  display:flex; align-items:center; justify-content:center;
+
+  font-size:1.3rem; line-height:1;
+  color:var(--ocea);
+
+  background:var(--glass-bg);
+  backdrop-filter:blur(6px);
+  border:1px solid var(--glass-brd);
+  border-radius:50%;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+  transition:background var(--transition), transform .15s;
+}
+.note-btn:hover{ background:var(--glass-bg-hover); }
+.note-btn:active{ transform:translateY(-50%) scale(.9); }
+
+/* ---------- Progress-bar pulse -------------------------------------- */
+.pulse{ animation:pulse 1s ease; }
+@keyframes pulse{ 0%{opacity:1;} 50%{opacity:.3;} 100%{opacity:1;} }
+
+/* ---------- Autres règles existantes… ------------------------------- */
+/* …garde tout ce que contenait déjà ton fichier (`body`, sections,
+   h2, .app-bar, modal, animations reveal, etc.)                       */
